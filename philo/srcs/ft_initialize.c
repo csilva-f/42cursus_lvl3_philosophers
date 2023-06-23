@@ -6,12 +6,11 @@
 /*   By: csilva-f <csilva-f@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/19 23:16:45 by csilva-f          #+#    #+#             */
-/*   Updated: 2023/06/22 23:52:12 by csilva-f         ###   ########.fr       */
+/*   Updated: 2023/06/23 18:48:37 by csilva-f         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/philo.h"
-#include <pthread.h>
 
 int	init_vars(t_global *g, char **str, int var)
 {
@@ -75,16 +74,55 @@ int	init_mtx_thr(t_global *g)
 	return (0);
 }
 
+t_philo	*ft_phnew(int i)
+{
+	t_philo	*philo;
+
+	philo = malloc(sizeof(t_philo));
+	if (!philo)
+		return (NULL);
+	philo->i = i;
+	philo->n_eat = 0;
+	philo->prev = NULL;
+	philo->next = NULL;
+	return (philo);
+}
+
+t_philo	*ft_phlast(t_philo *philo)
+{
+	if (!philo)
+		return (NULL);
+	while (philo->next != NULL)
+		philo = philo->next;
+	return (philo);
+}
+
+void	ft_phadd_b(t_philo **philo, t_philo *pnew)
+{
+	t_philo	*aux;
+
+	if (philo)
+	{
+		if (*philo)
+		{
+			aux = ft_phlast(*philo);
+			aux->next = pnew;
+			pnew->prev = aux;
+		}
+		else
+			*philo = pnew;
+	}
+}
+
 void	init_philos(t_global *g)
 {
-	int	i;
+	int		i;
+	t_philo	*p;
 
 	i = 0;
 	while (++i <= g->times->n_philo)
-	{
-		g->philos[i].i = i;
-		g->philos[i];
-	}
+		ft_phadd_b(&g->philos, ft_phnew(i));
+
 }
 
 int	initialize(t_global *g)

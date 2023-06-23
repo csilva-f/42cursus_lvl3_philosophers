@@ -6,7 +6,7 @@
 /*   By: csilva-f <csilva-f@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/19 19:39:39 by csilva-f          #+#    #+#             */
-/*   Updated: 2023/06/22 23:26:09 by csilva-f         ###   ########.fr       */
+/*   Updated: 2023/06/23 18:07:38 by csilva-f         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,13 +36,17 @@ typedef struct s_times
 typedef struct	s_fork
 {
 	int				i_fork;
-	pthread_mutex_t	*mtx;
+	pthread_mutex_t	*f_mtx;
 }			t_fork;
 
 typedef struct	s_philo
 {
-	int			i;
-	pthread_t	t;
+	int				i;
+	pthread_t		t;
+	int				n_eat;
+	t_fork			*fork;
+	struct s_philo	*prev;
+	struct s_philo	*next;
 }			t_philo;
 
 typedef struct	s_global
