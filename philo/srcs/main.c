@@ -6,7 +6,7 @@
 /*   By: csilva-f <csilva-f@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/19 19:39:07 by csilva-f          #+#    #+#             */
-/*   Updated: 2023/06/22 22:55:37 by csilva-f         ###   ########.fr       */
+/*   Updated: 2023/06/26 23:47:44 by csilva-f         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,13 +38,16 @@ int	main(int argc, char **argv)
 			return (1);
 		if (init_vars(&g, argv, argc))
 			return (1);
-		if (g.times->n_philo == 1)
+
+		/*if (g.times->n_philo == 1)
 		{
 			ft_1_philo(&g);
 			return (0);
 		}
 		else
-			printf("More than 1 philo\n");
+			printf("More than 1 philo\n");*/
+		if(initialize(&g))
+			return (1);
 	}
 	else
 		printf("Error: wrong number of arguments\n");

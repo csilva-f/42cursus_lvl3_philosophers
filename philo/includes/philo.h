@@ -6,7 +6,7 @@
 /*   By: csilva-f <csilva-f@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/19 19:39:39 by csilva-f          #+#    #+#             */
-/*   Updated: 2023/06/23 18:07:38 by csilva-f         ###   ########.fr       */
+/*   Updated: 2023/06/26 23:47:23 by csilva-f         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,9 @@ typedef struct s_times
 typedef struct	s_fork
 {
 	int				i_fork;
-	pthread_mutex_t	*f_mtx;
+	pthread_mutex_t	f_mtx;
+	struct s_fork	*prev;
+	struct s_fork	*next;
 }			t_fork;
 
 typedef struct	s_philo
@@ -44,7 +46,8 @@ typedef struct	s_philo
 	int				i;
 	pthread_t		t;
 	int				n_eat;
-	t_fork			*fork;
+	t_fork			*l_fork;
+	t_fork			*r_fork;
 	struct s_philo	*prev;
 	struct s_philo	*next;
 }			t_philo;
@@ -53,7 +56,7 @@ typedef struct	s_global
 {
 	t_times			*times;
 	t_philo			*philos;
-	pthread_mutex_t	*mtx_forks;
+	t_fork			*forks;
 	pthread_mutex_t	mtx_print;
 	pthread_mutex_t	mtx_death;
 }			t_global;
@@ -65,6 +68,7 @@ int				check_argums(int var, char **str);
 
 //INITIALIZE
 int				init_vars(t_global *g, char **str, int var);
+int				initialize(t_global *g);
 
 //UTILS
 void			*ft_bzero(void *s, size_t n);

@@ -6,11 +6,13 @@
 /*   By: csilva-f <csilva-f@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/19 23:16:45 by csilva-f          #+#    #+#             */
-/*   Updated: 2023/06/23 18:48:37 by csilva-f         ###   ########.fr       */
+/*   Updated: 2023/06/26 23:46:47 by csilva-f         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/philo.h"
+#include <pthread.h>
+#include <stdlib.h>
 
 int	init_vars(t_global *g, char **str, int var)
 {
@@ -33,21 +35,10 @@ int	init_vars(t_global *g, char **str, int var)
 	return (0);
 }
 
-int	free_destroy(t_global *g, int i)
+int	free_destroy(t_global *g)
 {
-	if (i < 0)
-	{
-		free(g->mtx_forks);
-		free(g->philos);
-		free(g->times);
-	}
-	while (i-- >= 0)
-	{
-		pthread_mutex_destroy(&g->mtx_forks[i]);
-		free(g->mtx_forks);
-		free(g->philos);
-		free(g->times);
-	}
+	free(g->philos);
+	free(g->times);
 	return (1);
 }
 
@@ -56,21 +47,9 @@ int	init_mtx_thr(t_global *g)
 	int	i;
 
 	i = -1;
-	g->mtx_forks = malloc(sizeof(pthread_mutex_t) * g->times->n_philo);
-	if (!g->mtx_forks)
-	{
-		free(g->times);
-		free(g->philos);
-		return (1);
-	}
 	if (pthread_mutex_init(&g->mtx_print, NULL) || \
 			pthread_mutex_init(&g->mtx_death, NULL))
-		return (free_destroy(g, i));
-	while (++i < g->times->n_philo)
-	{
-		if (pthread_mutex_init(&g->mtx_forks[i], NULL))
-			return (free_destroy(g, i));
-	}
+		return (free_destroy(g));
 	return (0);
 }
 
@@ -97,10 +76,12 @@ t_philo	*ft_phlast(t_philo *philo)
 	return (philo);
 }
 
-void	ft_phadd_b(t_philo **philo, t_philo *pnew)
+int	ft_phadd_b(t_philo **philo, t_philo *pnew)
 {
 	t_philo	*aux;
 
+	if (!pnew)
+		return (1);
 	if (philo)
 	{
 		if (*philo)
@@ -112,21 +93,93 @@ void	ft_phadd_b(t_philo **philo, t_philo *pnew)
 		else
 			*philo = pnew;
 	}
+	return (0);
 }
 
-void	init_philos(t_global *g)
+t_fork	*ft_fnew(int i)
+{
+	t_fork	*fork;
+
+	fork = malloc(sizeof(t_fork));
+	if (!fork)
+		return (NULL);
+	fork->i_fork = i;
+	fork->prev = NULL;
+	fork->next = NULL;
+	if (pthread_mutex_init(&fork->f_mtx, NULL))
+	{
+		free(fork);
+		return (NULL);
+	}
+	return (fork);
+}
+
+t_fork	*ft_flast(t_fork *forks)
+{
+	if (!forks)
+		return (NULL);
+	while (forks->next != NULL)
+		forks = forks->next;
+	return (forks);
+}
+
+int	ft_fadd_b(t_fork **forks, t_fork *fnew)
+{
+	t_fork	*aux;
+
+	if (!fnew)
+		return (1);
+	if (forks)
+	{
+		if (*forks)
+		{
+			aux = ft_flast(*forks);
+			aux->next = fnew;
+			fnew->prev = aux;
+		}
+		else
+			*forks = fnew;
+	}
+	return (0);
+}
+
+void	ft_set_forks(t_global *g, int i)
+{
+	t_fork *aux;
+
+	aux = g->forks;
+	while (i > aux->i_fork)
+		aux = aux->next;
+	g->philos->r_fork = aux;
+	g->philos->l_fork = aux->prev;
+}
+
+int	init_philos(t_global *g)
 {
 	int		i;
-	t_philo	*p;
 
 	i = 0;
 	while (++i <= g->times->n_philo)
-		ft_phadd_b(&g->philos, ft_phnew(i));
-
+	{
+		if (ft_fadd_b(&g->forks, ft_fnew(i)))
+			return (1);
+	}
+	g->forks->prev = ft_flast(g->forks);
+	i = 0;
+	while (++i <= g->times->n_philo)
+	{
+		if (ft_phadd_b(&g->philos, ft_phnew(i)))
+			return (1);
+		ft_set_forks(g, i);
+	}
+	return (0);
 }
 
 int	initialize(t_global *g)
 {
-
+	if (init_mtx_thr(g))
+		return (1);
+	if (init_philos(g))
+		return (1);
 	return (0);
 }
