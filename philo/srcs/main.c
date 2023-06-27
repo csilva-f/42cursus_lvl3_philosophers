@@ -6,26 +6,29 @@
 /*   By: csilva-f <csilva-f@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/19 19:39:07 by csilva-f          #+#    #+#             */
-/*   Updated: 2023/06/26 23:47:44 by csilva-f         ###   ########.fr       */
+/*   Updated: 2023/06/27 23:46:19 by csilva-f         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/philo.h"
 
-u_int64_t	get_time()
+void	free_all(t_global *g)
 {
-	struct timeval	tv;
+	int 	i;
+	t_fork	*aux_f;
+	t_philo	*aux_p;
 
-	if (gettimeofday(&tv, NULL))
-		return (-1);
-	return ((tv.tv_sec * (u_int64_t)1000 + tv.tv_usec / 1000));
-}
-
-void	ft_1_philo(t_global *g)
-{
-	printf("0      %d has taken a fork\n", g->times->n_philo);
-	usleep(g->times->to_die * 1000);
-	printf("%" PRIx64 "    %d died\n", g->times->to_die, g->times->n_philo);
+	i = 0;
+	while (++i <= g->times->n_philo)
+	{
+		aux_f = g->forks->next;
+		free(g->forks);
+		aux_p = g->philos->next;
+		free(g->philos);
+		g->forks = aux_f;
+		g->philos = aux_p;
+	}
+	free(g->times);
 }
 
 int	main(int argc, char **argv)
@@ -38,16 +41,9 @@ int	main(int argc, char **argv)
 			return (1);
 		if (init_vars(&g, argv, argc))
 			return (1);
-
-		/*if (g.times->n_philo == 1)
-		{
-			ft_1_philo(&g);
-			return (0);
-		}
-		else
-			printf("More than 1 philo\n");*/
-		if(initialize(&g))
+		if (initialize(&g))
 			return (1);
+		free_all(&g);	
 	}
 	else
 		printf("Error: wrong number of arguments\n");

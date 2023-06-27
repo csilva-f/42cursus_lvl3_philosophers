@@ -6,7 +6,7 @@
 #    By: csilva-f <csilva-f@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/06/19 19:24:39 by csilva-f          #+#    #+#              #
-#    Updated: 2023/06/19 23:18:45 by csilva-f         ###   ########.fr        #
+#    Updated: 2023/06/27 21:29:49 by csilva-f         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -20,8 +20,13 @@ ifdef DEBUG
 		CFLAGS += -fsanitize=address
 endif
 
+ifdef RACES
+		CFLAGS += -fsanitize=thread
+endif
+
 SRCS :=		srcs/main.c												\
 			srcs/ft_check.c					srcs/ft_initialize.c	\
+			srcs/ft_initialize_2.c			srcs/ft_initialize_3.c	\
 			srcs/ft_utils.c		
 
 SRCS_BONUS := 
