@@ -5,87 +5,31 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: csilva-f <csilva-f@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/06/27 19:42:03 by csilva-f          #+#    #+#             */
-/*   Updated: 2023/06/27 23:14:49 by csilva-f         ###   ########.fr       */
+/*   Created: 2023/06/27 19:45:57 by csilva-f          #+#    #+#             */
+/*   Updated: 2023/06/29 00:55:26 by csilva-f         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/philo.h"
 
-int	ft_phadd_b(t_philo **philo, t_philo *pnew)
+int	initialize(t_global *g)
 {
-	t_philo	*aux;
+	int	i;
 
-	if (!pnew)
-		return (1);
-	if (philo)
+	if (init_mtx_thr(g))
+		return (error_handler("failed to initialize mutexes"));
+	if (init_forks(g))
+		return (error_handler("failed to initialize forks"));
+	if (init_philos(g))
+		return (error_handler("failed to initialize philosophers"));
+	i = -1;
+	while (++i < g->times->n_philo)
 	{
-		if (*philo)
-		{
-			aux = ft_phlast(*philo);
-			aux->next = pnew;
-			pnew->prev = aux;
-		}
+		g->philos[i].r_fork = &g->times->forks[i];
+		if (i == 0)
+			g->philos[i].l_fork = &g->times->forks[g->times->n_philo - 1];
 		else
-			*philo = pnew;
+			g->philos[i].l_fork = &g->times->forks[i - 1];
 	}
 	return (0);
-}
-
-t_fork	*ft_fnew(int i)
-{
-	t_fork	*fork;
-
-	fork = malloc(sizeof(t_fork));
-	if (!fork)
-		return (NULL);
-	fork->i_fork = i;
-	fork->prev = NULL;
-	fork->next = NULL;
-	if (pthread_mutex_init(&fork->f_mtx, NULL))
-	{
-		free(fork);
-		return (NULL);
-	}
-	return (fork);
-}
-
-t_fork	*ft_flast(t_fork *forks)
-{
-	if (!forks)
-		return (NULL);
-	while (forks->next != NULL)
-		forks = forks->next;
-	return (forks);
-}
-
-int	ft_fadd_b(t_fork **forks, t_fork *fnew)
-{
-	t_fork	*aux;
-
-	if (!fnew)
-		return (1);
-	if (forks)
-	{
-		if (*forks)
-		{
-			aux = ft_flast(*forks);
-			aux->next = fnew;
-			fnew->prev = aux;
-		}
-		else
-			*forks = fnew;
-	}
-	return (0);
-}
-
-void	ft_set_forks(t_global *g, int i)
-{
-	t_fork	*aux;
-
-	aux = g->forks;
-	while (i > aux->i_fork)
-		aux = aux->next;
-	g->philos->r_fork = aux;
-	g->philos->l_fork = aux->prev;
 }

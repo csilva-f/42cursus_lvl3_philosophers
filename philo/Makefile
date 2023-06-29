@@ -6,14 +6,14 @@
 #    By: csilva-f <csilva-f@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/06/19 19:24:39 by csilva-f          #+#    #+#              #
-#    Updated: 2023/06/27 21:29:49 by csilva-f         ###   ########.fr        #
+#    Updated: 2023/06/28 23:34:37 by csilva-f         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME := philo
 BONUS := philo_bonus
 
-CC := cc
+CC := cc -pthread
 CFLAGS := -Wall -Werror -Wextra -g
 
 ifdef DEBUG
@@ -26,8 +26,8 @@ endif
 
 SRCS :=		srcs/main.c												\
 			srcs/ft_check.c					srcs/ft_initialize.c	\
-			srcs/ft_initialize_2.c			srcs/ft_initialize_3.c	\
-			srcs/ft_utils.c		
+			srcs/ft_initialize_2.c			srcs/ft_simulate.c		\
+			srcs/ft_utils.c
 
 SRCS_BONUS := 
 

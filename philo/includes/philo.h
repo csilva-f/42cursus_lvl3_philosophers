@@ -6,7 +6,7 @@
 /*   By: csilva-f <csilva-f@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/19 19:39:39 by csilva-f          #+#    #+#             */
-/*   Updated: 2023/06/27 23:46:44 by csilva-f         ###   ########.fr       */
+/*   Updated: 2023/06/29 03:04:33 by csilva-f         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,12 @@
 # include <sys/types.h>
 # include <inttypes.h>
 
+# define DIE 0
+# define EAT 1
+# define FORK 2
+# define SLEEP 3
+# define THINK 4
+
 typedef struct s_times
 {
 	int				n_philo;
@@ -31,35 +37,29 @@ typedef struct s_times
 	u_int64_t		to_sleep;
 	int				n_eat;
 	u_int64_t		start;
+	pthread_mutex_t	*forks;
 }			t_times;
-
-typedef struct	s_fork
-{
-	int				i_fork;
-	pthread_mutex_t	f_mtx;
-	struct s_fork	*prev;
-	struct s_fork	*next;
-}			t_fork;
 
 typedef struct	s_philo
 {
 	int				i;
 	pthread_t		t;
 	int				n_eat;
-	t_fork			*l_fork;
-	t_fork			*r_fork;
-	struct s_philo	*prev;
-	struct s_philo	*next;
+	pthread_mutex_t	*l_fork;
+	pthread_mutex_t	*r_fork;
 	u_int64_t		t_eat;
+	t_times			*times;
 }			t_philo;
 
 typedef struct	s_global
 {
 	t_times			*times;
 	t_philo			*philos;
-	t_fork			*forks;
 	pthread_mutex_t	mtx_print;
 	pthread_mutex_t	mtx_death;
+	pthread_mutex_t	mtx_eat;
+	int				dead;
+	int				all_eaten;
 }			t_global;
 
 //----------------------------------SRCS------------------------------------
@@ -71,23 +71,23 @@ int				check_argums(int var, char **str);
 int				init_vars(t_global *g, char **str, int var);
 int				free_destroy(t_global *g);
 int				init_mtx_thr(t_global *g);
-t_philo			*ft_phnew(int i);
-t_philo			*ft_phlast(t_philo *philo);
+int				init_forks(t_global *g);
+int				init_philos(t_global *g);
 
 //INITIALIZE 2
-int				ft_phadd_b(t_philo **philo, t_philo *pnew);
-t_fork			*ft_fnew(int i);
-t_fork			*ft_flast(t_fork *forks);
-int				ft_fadd_b(t_fork **forks, t_fork *fnew);
-void			ft_set_forks(t_global *g, int i);
-
-//INITIALIZE 3
-int				init_philos(t_global *g);
 int				initialize(t_global *g);
+
+//SIMULATE
+int				print(t_global *g, int i, int action);
+void			wait_action(u_int64_t delta_t);
+void			*routine(void *global);
+int				join_threads(t_philo *p, int i);
+int				simulation(t_global *g, int i);
 
 //UTILS
 void			*ft_bzero(void *s, size_t n);
 long int		ft_atoi(const char *nptr);
 u_int64_t		get_time(void);
+int				error_handler(char *str);
 
 #endif

@@ -6,11 +6,12 @@
 /*   By: csilva-f <csilva-f@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/03 23:09:07 by csilva-f          #+#    #+#             */
-/*   Updated: 2023/06/19 23:13:11 by csilva-f         ###   ########.fr       */
+/*   Updated: 2023/06/29 00:54:37 by csilva-f         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/philo.h"
+#include <stdio.h>
 
 void	*ft_bzero(void *s, size_t n)
 {
@@ -63,4 +64,10 @@ u_int64_t	get_time(void)
 	if (gettimeofday(&tv, NULL))
 		return (-1);
 	return ((tv.tv_sec * (u_int64_t)1000 + tv.tv_usec / 1000));
+}
+
+int	error_handler(char *str)
+{
+	printf("Error: %s\n", str);
+	return (1);
 }
