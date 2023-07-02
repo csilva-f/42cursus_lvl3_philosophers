@@ -6,27 +6,11 @@
 /*   By: csilva-f <csilva-f@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/03 23:09:07 by csilva-f          #+#    #+#             */
-/*   Updated: 2023/06/29 00:54:37 by csilva-f         ###   ########.fr       */
+/*   Updated: 2023/07/02 18:22:43 by csilva-f         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/philo.h"
-
-void	*ft_bzero(void *s, size_t n)
-{
-	unsigned char	*str2;
-	int				i;
-
-	str2 = s;
-	i = 0;
-	while (n > 0)
-	{
-		str2[i] = 0;
-		i++;
-		n--;
-	}
-	return (s);
-}
 
 long int	ft_atoi(const char *nptr)
 {
@@ -65,8 +49,10 @@ u_int64_t	get_time(void)
 	return ((tv.tv_sec * (u_int64_t)1000 + tv.tv_usec / 1000));
 }
 
-int	error_handler(char *str)
+int	error_handler(char *str, int i)
 {
 	printf("Error: %s\n", str);
+	if (i == 1)
+		return (-1);
 	return (1);
 }

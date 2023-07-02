@@ -6,7 +6,7 @@
 #    By: csilva-f <csilva-f@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/06/19 19:24:39 by csilva-f          #+#    #+#              #
-#    Updated: 2023/06/28 23:34:37 by csilva-f         ###   ########.fr        #
+#    Updated: 2023/07/02 12:09:47 by csilva-f         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -24,9 +24,8 @@ ifdef RACES
 		CFLAGS += -fsanitize=thread
 endif
 
-SRCS :=		srcs/main.c												\
-			srcs/ft_check.c					srcs/ft_initialize.c	\
-			srcs/ft_initialize_2.c			srcs/ft_simulate.c		\
+SRCS :=		srcs/main.c						srcs/ft_check.c		\
+			srcs/ft_initialize.c			srcs/ft_routines.c	\
 			srcs/ft_utils.c
 
 SRCS_BONUS := 
