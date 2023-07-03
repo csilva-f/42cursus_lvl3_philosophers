@@ -24,8 +24,8 @@ ifdef RACES
 		CFLAGS += -fsanitize=thread
 endif
 
-SRCS :=		srcs/main.c						srcs/ft_check.c		\
-			srcs/ft_initialize.c			srcs/ft_routines.c	\
+SRCS :=		srcs/main.c							srcs/ft_check.c			\
+			srcs/ft_initialize.c				srcs/ft_simulation.c	\
 			srcs/ft_utils.c
 
 SRCS_BONUS := 

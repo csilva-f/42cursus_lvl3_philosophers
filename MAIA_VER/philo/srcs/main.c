@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: csilva-f <csilva-f@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ledos-sa <ledos-sa@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/07/02 18:25:33 by csilva-f          #+#    #+#             */
-/*   Updated: 2023/07/02 19:29:24 by csilva-f         ###   ########.fr       */
+/*   Created: 2023/06/29 13:56:39 by ledos-sa          #+#    #+#             */
+/*   Updated: 2023/07/03 01:10:29 by csilva-f         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,23 +26,25 @@ int	main(int argc, char **argv)
 	t_info			*info;
 	int32_t			i;
 	uint32_t		*forks;
-	pthread_t		*philos_t;
+	pthread_t		*p_threads;
 	pthread_mutex_t	*mtx;
 
 	if (argc == 5 || argc == 6)
 	{
+		if (check_argums(argc, argv))
+			return (1);
 		info = malloc(ft_atoi(argv[1]) * sizeof(t_info));
 		forks = malloc(ft_atoi(argv[1]) * sizeof(uint32_t));
 		mtx = malloc(ft_atoi(argv[1]) * sizeof(pthread_mutex_t));
-		philos_t = malloc(ft_atoi(argv[1]) * sizeof(pthread_t));
+		p_threads = malloc(ft_atoi(argv[1]) * sizeof(pthread_t));
 		init(info, argv, mtx, argc);
-		threads(info, forks, philos_t, mtx);
+		threads(info, forks, p_threads, mtx);
 		i = -1;
 		while (++i < ft_atoi(argv[1]))
-			pthread_join(philos_t[i], NULL);
-		free_all(&info, &forks, &philos_t, &mtx);
+			pthread_join(p_threads[i], NULL);
+		free_all(&info, &forks, &p_threads, &mtx);
 	}
 	else
-		return (error_handler("wrong number of arguments", 0));
+		return (error_handler("invalid number of input parameters", 0));
 	return (0);
 }
