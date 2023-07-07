@@ -3,30 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   ft_utils.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: csilva-f <csilva-f@student.42porto.com>    +#+  +:+       +#+        */
+/*   By: csilva-f <csilva-f@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/11/03 23:09:07 by csilva-f          #+#    #+#             */
-/*   Updated: 2023/06/29 00:54:37 by csilva-f         ###   ########.fr       */
+/*   Created: 2023/07/03 19:18:22 by csilva-f          #+#    #+#             */
+/*   Updated: 2023/07/03 20:02:58 by csilva-f         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/philo.h"
-
-void	*ft_bzero(void *s, size_t n)
-{
-	unsigned char	*str2;
-	int				i;
-
-	str2 = s;
-	i = 0;
-	while (n > 0)
-	{
-		str2[i] = 0;
-		i++;
-		n--;
-	}
-	return (s);
-}
 
 long int	ft_atoi(const char *nptr)
 {
@@ -56,7 +40,7 @@ long int	ft_atoi(const char *nptr)
 	return (res * c);
 }
 
-u_int64_t	get_time(void)
+u_int64_t	get_t(void)
 {
 	struct timeval	tv;
 
@@ -65,8 +49,32 @@ u_int64_t	get_time(void)
 	return ((tv.tv_sec * (u_int64_t)1000 + tv.tv_usec / 1000));
 }
 
-int	error_handler(char *str)
+void	print(t_info *i, uint32_t type)
+{
+	pthread_mutex_lock(i->print_mtx);
+	if (*i->end == 0)
+	{
+		if (type == PDIED && *i->end == 0)
+		{
+			*i->end = 1;
+			printf("%lu %d died\n", get_t() - i->time[0], i->id + 1);
+		}
+		else if (type == PTHINK)
+			printf("%lu %d is thinking\n", get_t() - i->time[0], i->id + 1);
+		else if (type == PEATING)
+			printf("%lu %d is eating\n", get_t() - i->time[0], i->id + 1);
+		else if (type == PFORK)
+			printf("%lu %d has taken a fork\n", get_t() - i->time[0], i->id + 1);
+		else if (type == PSLEEP)
+			printf("%lu %d is sleeping\n", get_t() - i->time[0], i->id + 1);
+	}
+	pthread_mutex_unlock(i->print_mtx);
+}
+
+int	error_handler(char *str, int i)
 {
 	printf("Error: %s\n", str);
+	if (i == 1)
+		return (-1);
 	return (1);
 }

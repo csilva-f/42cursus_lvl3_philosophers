@@ -5,8 +5,8 @@
 #                                                     +:+ +:+         +:+      #
 #    By: csilva-f <csilva-f@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2023/06/19 19:24:39 by csilva-f          #+#    #+#              #
-#    Updated: 2023/07/02 12:09:47 by csilva-f         ###   ########.fr        #
+#    Created: 2023/07/03 19:15:48 by csilva-f          #+#    #+#              #
+#    Updated: 2023/07/03 23:21:49 by csilva-f         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -14,7 +14,7 @@ NAME := philo
 BONUS := philo_bonus
 
 CC := cc -pthread
-CFLAGS := -Wall -Werror -Wextra -g
+CFLAGS := -Wall -Werror -Wextra -O3 -march=native
 
 ifdef DEBUG
 		CFLAGS += -fsanitize=address
@@ -25,7 +25,8 @@ ifdef RACES
 endif
 
 SRCS :=		srcs/main.c							srcs/ft_check.c			\
-			srcs/ft_initialize.c				srcs/ft_simulation.c	\
+			srcs/ft_eat.c						srcs/ft_forks.c 		\
+			srcs/ft_initialize.c				srcs/ft_simulate.c		\
 			srcs/ft_utils.c
 
 SRCS_BONUS := 

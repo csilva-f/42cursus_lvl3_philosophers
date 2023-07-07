@@ -5,87 +5,90 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: csilva-f <csilva-f@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/06/19 23:16:45 by csilva-f          #+#    #+#             */
-/*   Updated: 2023/06/28 23:42:32 by csilva-f         ###   ########.fr       */
+/*   Created: 2023/07/03 19:41:53 by csilva-f          #+#    #+#             */
+/*   Updated: 2023/07/03 22:09:06 by csilva-f         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/philo.h"
 
-int	init_vars(t_global *g, char **str, int var)
+void	init_aux(atomic_int **end, pthread_mutex_t **m, atomic_int **start)
 {
-	g->times = malloc(sizeof(t_times));
-	g->times->n_philo = ft_atoi(str[1]);
-	g->times->to_die = ft_atoi(str[2]);
-	g->times->to_eat = ft_atoi(str[3]);
-	g->times->to_sleep = ft_atoi(str[4]);
-	g->dead = 0;
-	if (var == 6)
-		g->times->n_eat = ft_atoi(str[5]);
-	else
-		g->times->n_eat = -1;
-	g->times->start = get_time();
-	g->philos = malloc(sizeof(t_philo) * g->times->n_philo);
-	if (!g->philos)
+	*end = malloc(sizeof(atomic_int *));
+	*start = malloc(sizeof(atomic_int *));
+	*m = malloc(sizeof(pthread_mutex_t *));
+	**end = 0;
+	**start = 0;
+}
+
+void	init_aux2(int argc, t_info **info, int32_t i, char **str)
+{
+	if (argc == 6)
 	{
-		free(g->times);
-		return (1);
+		(*info)[i].n_eat = ft_atoi(str[5]);
+		(*info)[i].eaten = 0;
 	}
-	return (0);
+	else 
+		(*info)[i].n_eat = -1;
 }
 
-int	free_destroy(t_global *g)
+void	init(t_info *info, char **str, pthread_mutex_t *mtx, int argc)
 {
-	free(g->philos);
-	free(g->times);
-	return (1);
-}
-
-int	init_mtx_thr(t_global *g)
-{
-	int	i;
+	int32_t			i;
+	atomic_int		*end;
+	pthread_mutex_t	*mprint;
+	atomic_int		*start;
 
 	i = -1;
-	if (pthread_mutex_init(&g->mtx_print, NULL) || \
-			pthread_mutex_init(&g->mtx_death, NULL))
-		return (free_destroy(g));
-	return (0);
+	init_aux(&end, &mprint, &start);
+	while (++i < ft_atoi(str[1]))
+	{
+		pthread_mutex_init(&mtx[i], NULL);
+		info[i].ttd = ft_atoi(str[2]);
+		info[i].tte = ft_atoi(str[3]);
+		info[i].tts = ft_atoi(str[4]);
+		info[i].n_philos = ft_atoi(str[1]);
+		info[i].time[0] = get_t();
+		info[i].time[1] = get_t();
+		info[i].end = end;
+		info[i].print_mtx = mprint;
+		info[i].start = start;
+		init_aux2(argc, &info, i, str);
+	}
 }
 
-int	init_forks(t_global *g)
+void	threads_aux(uint32_t n_philos, int i, int32_t *left)
 {
-	int	i;
-	int	j;
-
-	g->times->forks = malloc(sizeof(pthread_mutex_t) * g->times->n_philo);
-	if (g->times->forks)
-		return (free_destroy(g));
-	i = -1;
-	while (++i < g->times->n_philo)
-	{
-		if (pthread_mutex_init(&g->times->forks[i], NULL))
-		{
-			j = -1;
-			while (++j < i)
-				pthread_mutex_destroy(&g->times->forks[j]);
-			free(g->times->forks);
-			return (free_destroy(g));
-		}
-	}
-	return (0);
+	(*left) = i - 1;
+	if (i == 0)
+		(*left) = n_philos - 1;
 }
 
-int	init_philos(t_global *g)
+void	threads(t_info *info, uint32_t *f, pthread_t *p_t, pthread_mutex_t *mtx)
 {
-	int		i;
+	int32_t		left;
+	uint32_t	i;
 
 	i = -1;
-	while (++i < g->times->n_philo)
+	while (++i < info->n_philos)
 	{
-		g->philos[i].i = i + 1;
-		g->philos[i].n_eat = 0;
-		g->philos[i].t_eat = get_time();
-		g->philos[i].times = g->times;
+		threads_aux(info->n_philos, i, &left);
+		f[i] = 0;
+		info[i].id = i;
+		info[i].state = THINK;
+		info[i].tforks.l_fork = f + left;
+		info[i].tforks.l_mtx = mtx + left;
+		info[i].tforks.r_fork = f + i;
+		info[i].tforks.r_mtx = mtx + i;
+		info[i].c = 0;
 	}
-	return (0);
+	i = -1;
+	while (++i < info->n_philos)
+	{
+		if (i % 2 == 0)
+			pthread_create(&p_t[i], NULL, even, &info[i]);
+		else
+			pthread_create(&p_t[i], NULL, odd, &info[i]);
+	}
+	*info[0].start = 1;
 }

@@ -5,89 +5,95 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: csilva-f <csilva-f@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/06/19 19:39:39 by csilva-f          #+#    #+#             */
-/*   Updated: 2023/06/29 03:04:33 by csilva-f         ###   ########.fr       */
+/*   Created: 2023/07/02 10:31:49 by csilva-f          #+#    #+#             */
+/*   Updated: 2023/07/03 23:29:29 by csilva-f         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef PHILO_H
 # define PHILO_H
 
-# include <bits/types/struct_timeval.h>
-# include <stdio.h>
 # include <pthread.h>
+# include <stdatomic.h>
+# include <stdint.h>
+# include <stdio.h>
+# include <sys/types.h>
 # include <unistd.h>
-# include <string.h>
 # include <stdlib.h>
 # include <sys/time.h>
-# include <sys/types.h>
-# include <inttypes.h>
 
-# define DIE 0
-# define EAT 1
-# define FORK 2
-# define SLEEP 3
+# define BOTH 3
+# define LEFT 2
+# define RIGHT 1
+# define NONE 0
 # define THINK 4
+# define DROP 0
+# define TAKE 1
+# define LEFTHAND 0
+# define RIGHTHAND 1
+# define DIED 1
+# define ALIVE 0
 
-typedef struct s_times
-{
-	int				n_philo;
-	u_int64_t		to_die;
-	u_int64_t		to_eat;
-	u_int64_t		to_sleep;
-	int				n_eat;
-	u_int64_t		start;
-	pthread_mutex_t	*forks;
-}			t_times;
+# define PDIED 0
+# define PSLEEP 1
+# define PEATING 2
+# define PTHINK 3
+# define PFORK 4
 
-typedef struct	s_philo
-{
-	int				i;
-	pthread_t		t;
-	int				n_eat;
-	pthread_mutex_t	*l_fork;
-	pthread_mutex_t	*r_fork;
-	u_int64_t		t_eat;
-	t_times			*times;
-}			t_philo;
+typedef struct s_forks{
+	uint32_t		*l_fork;
+	uint32_t		*r_fork;
+	pthread_mutex_t	*l_mtx;
+	pthread_mutex_t	*r_mtx;
+}		t_forks;
 
-typedef struct	s_global
-{
-	t_times			*times;
-	t_philo			*philos;
-	pthread_mutex_t	mtx_print;
-	pthread_mutex_t	mtx_death;
-	pthread_mutex_t	mtx_eat;
-	int				dead;
-	int				all_eaten;
-}			t_global;
+typedef struct s_info{
+	t_forks			tforks;
+	uint32_t		n_philos;
+	uint32_t		id;
+	uint32_t		ttd;
+	uint32_t		tte;
+	uint32_t		tts;
+	uint32_t		state;
+	uint64_t		time[2];
+	atomic_int		*end;
+	int32_t			eaten;
+	int32_t			n_eat;
+	pthread_mutex_t	*print_mtx;
+	atomic_int		*start;
+	uint32_t		c;
+}		t_info;
 
-//----------------------------------SRCS------------------------------------
+//-----------------------------------SRCS-----------------------------------
 //CHECK
-int				check_digits(int var, char **str);
-int				check_argums(int var, char **str);
+int			check_digits(int var, char **str);
+int			check_argums(int var, char **str);
 
 //INITIALIZE
-int				init_vars(t_global *g, char **str, int var);
-int				free_destroy(t_global *g);
-int				init_mtx_thr(t_global *g);
-int				init_forks(t_global *g);
-int				init_philos(t_global *g);
+void		init_aux(atomic_int **end, pthread_mutex_t **m, atomic_int **start);
+void		init_aux2(int argc, t_info **info, int32_t i, char **str);
+void		init(t_info *info, char **str, pthread_mutex_t *mtx, int argc);
+void		threads_aux(uint32_t n_philos, int i, int32_t *left);
+void		threads(t_info *info, uint32_t *f, pthread_t *p_t, \
+		pthread_mutex_t *mtx);
 
-//INITIALIZE 2
-int				initialize(t_global *g);
+//EAT
+void		eat_aux(t_info *i, uint8_t hand);
+void		eat_aux2(t_info *i);
+uint8_t		eat(t_info *i, uint8_t hand);
+
+//FORKS
+uint32_t	left_fork(t_info *info, uint32_t i_state, uint32_t f_state);
+uint32_t	right_fork(t_info *info, uint32_t i_state, uint32_t f_state);
 
 //SIMULATE
-int				print(t_global *g, int i, int action);
-void			wait_action(u_int64_t delta_t);
-void			*routine(void *global);
-int				join_threads(t_philo *p, int i);
-int				simulation(t_global *g, int i);
+void		*even(void *info);
+void		*odd(void *info);
 
 //UTILS
-void			*ft_bzero(void *s, size_t n);
-long int		ft_atoi(const char *nptr);
-u_int64_t		get_time(void);
-int				error_handler(char *str);
+long int	ft_atoi(const char *nptr);
+u_int64_t	get_t(void);
+void		print(t_info *i, uint32_t type);
+int			error_handler(char *str, int f);
 
 #endif
