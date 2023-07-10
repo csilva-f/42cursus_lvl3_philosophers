@@ -6,47 +6,43 @@
 /*   By: csilva-f <csilva-f@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/03 19:18:22 by csilva-f          #+#    #+#             */
-/*   Updated: 2023/07/10 00:47:53 by csilva-f         ###   ########.fr       */
+/*   Updated: 2023/07/10 01:07:03 by csilva-f         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../includes/philo.h"
+#include "../includes/philo_bonus.h"
 
-void	free_all(t_info **i, uint32_t **f, pthread_t **p_t, pthread_mutex_t **m)
+void	fork_id_aux(t_info *info, int i, uint32_t *fork_id)
 {
-	free((*i)->end);
-	free((*i)->start);
-	free((*i)->print_mtx);
-	free(*i);
-	free(*f);
-	free(*p_t);
-	free(*m);
+	*fork_id = fork();
+	if (*fork_id != 0)
+		info->pid[i] = *fork_id;
 }
 
 int	main(int argc, char **argv)
 {
-	t_info			*info;
-	int32_t			i;
-	uint32_t		*forks;
-	pthread_t		*p_threads;
-	pthread_mutex_t	*mtx;
+	t_info		info;
+	int32_t		i;
+	uint32_t	fork_id;
 
 	if (argc == 5 || argc == 6)
 	{
-		if (check_argums(argc, argv))
-			return (1);
-		info = malloc(ft_atoi(argv[1]) * sizeof(t_info));
-		forks = malloc(ft_atoi(argv[1]) * sizeof(uint32_t));
-		mtx = malloc(ft_atoi(argv[1]) * sizeof(pthread_mutex_t));
-		p_threads = malloc(ft_atoi(argv[1]) * sizeof(p_threads));
-		init(info, argv, mtx, argc);
-		threads(info, forks, p_threads, mtx);
-		i = -1;
-		while (++i < ft_atoi(argv[1]))
-			pthread_join(p_threads[i], NULL);
-		free_all(&info, &forks, &p_threads, &mtx);
+		fork_id = -1;
+		init(&info, argc, argv, &i);
+		while (++i < info.n_philos && fork_id != 0)
+			fork_id_aux(&info, i, &fork_id);
+		info.id = i - 1;
+		if (fork_id == 0)
+			philo(&info);
+		else
+		{
+			sem_wait(info.end);
+			i = -1;
+			while (++i < info.n_philos)
+				kill(info.pid[i], SIGTERM);
+			waitpid(-1, NULL, 0);
+		}
 	}
 	else
 		return (error_handler("invalid number of arguments", 0));
-	return (0);
 }

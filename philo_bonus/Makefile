@@ -3,14 +3,14 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: csilva-f <csilva-f@student.42.fr>          +#+  +:+       +#+         #
+#    By: ledos-sa <ledos-sa@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2023/07/03 19:15:48 by csilva-f          #+#    #+#              #
-#    Updated: 2023/07/03 23:21:49 by csilva-f         ###   ########.fr        #
+#    Created: 2023/07/07 22:35:27 by ledos-sa          #+#    #+#              #
+#    Updated: 2023/07/09 21:40:07 by ledos-sa         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-NAME := philo
+NAME := philo_bonus
 
 CC := cc -pthread
 CFLAGS := -Wall -Werror -Wextra -O3 -march=native
@@ -23,21 +23,15 @@ ifdef RACES
 		CFLAGS += -fsanitize=thread
 endif
 
-SRCS :=		srcs/main.c							srcs/ft_check.c			\
-			srcs/ft_eat.c						srcs/ft_forks.c 		\
-			srcs/ft_initialize.c				srcs/ft_simulate.c		\
-			srcs/ft_utils.c
-
+SRCS :=		srcs/main.c				srcs/ft_philo.c				 srcs/ft_utils.c
 
 OBJS := $(SRCS:.c=.o)
-
 
 all:	$(NAME)
 
 $(NAME):	$(OBJS)
 			$(CC) $(CFLAGS) -lm $(OBJS) $(LIBFT) -o $(NAME)
 			echo "\033[1m $(NAME) ready \033[0m"
-
 
 clean:
 		rm -rf $(OBJS)
